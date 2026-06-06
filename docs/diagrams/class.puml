@@ -1,0 +1,46 @@
+@startuml atlas-mcp-doc-search class diagram
+
+class DocSearchServer {
+    +run() : None
+    +doc_search(query: str, k: int) : dict
+}
+
+class HybridRetriever {
+    -es_client : ElasticsearchClient
+    -qdrant_client : QdrantClient
+    -embeddings_client : EmbeddingsClient
+    +retrieve(query: str, k: int) : list[Chunk]
+    -fuse_rrf(bm25_results: list[Chunk], vector_results: list[Chunk]) : list[Chunk]
+}
+
+class Chunk {
+    +id : str
+    +text : str
+    +source_id : str
+    +score : float
+}
+
+class ElasticsearchClient {
+    -index : str
+    +search(query: str, top_n: int) : list[Chunk]
+}
+
+class QdrantClient {
+    -collection : str
+    +search(vector: list[float], top_n: int) : list[Chunk]
+}
+
+class EmbeddingsClient {
+    -gateway_url : str
+    +embed(text: str) : list[float]
+}
+
+DocSearchServer --> HybridRetriever : uses
+HybridRetriever --> ElasticsearchClient : uses
+HybridRetriever --> QdrantClient : uses
+HybridRetriever --> EmbeddingsClient : uses
+HybridRetriever ..> Chunk : returns
+ElasticsearchClient ..> Chunk : returns
+QdrantClient ..> Chunk : returns
+
+@enduml
