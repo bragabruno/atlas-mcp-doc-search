@@ -1,0 +1,47 @@
+[project]
+name = "atlas-mcp-doc-search"
+version = "0.1.0"
+description = "Atlas MCP doc-search server — hybrid BM25 + vector retrieval via RRF"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp==1.27.1",
+    "elasticsearch==9.4.0",
+    "qdrant-client==1.18.0",
+    "httpx==0.28.1",
+    "pydantic==2.13.4",
+    "pydantic-settings==2.14.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "pytest-asyncio==1.3.0",
+    "ruff==0.9.6",
+    "pyright==1.1.394",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["."]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+include = ["app", "tests"]
+venvPath = "."
+venv = ".venv"
