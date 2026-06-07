@@ -1,6 +1,6 @@
 # atlas-mcp-doc-search
 
-MCP server that exposes hybrid document search over the Atlas ingested corpus. Built with the official Python `mcp` SDK, Python 3.12 asyncio, and deployed as a standalone K8s service on AKS.
+MCP server that exposes hybrid document search over the Atlas ingested corpus. Built with the official Python `mcp` SDK (FastMCP server interface, Streamable HTTP transport), Python 3.12 asyncio, and deployed as a standalone K8s service on AKS.
 
 ## Tool Contract
 
