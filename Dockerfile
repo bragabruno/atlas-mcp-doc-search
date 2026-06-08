@@ -28,4 +28,4 @@ EXPOSE 8000
 # the gateway API key (ELASTICSEARCH_URL, QDRANT_URL, ATLAS_GATEWAY_URL,
 # ATLAS_GATEWAY_API_KEY) are injected per-env at deploy time via the Key Vault
 # CSI mount (atlas-docs/04); the image ships no secrets.
-CMD ["python", "-m", "app.server"]
+CMD ["python", "-m", "atlas_mcp_doc_search.server"]

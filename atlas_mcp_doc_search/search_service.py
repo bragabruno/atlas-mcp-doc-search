@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import asyncio
 
-from app.domain import Chunk
-from app.protocols import BM25Client, EmbeddingsClient, VectorClient
-from app.rrf import fuse
+from atlas_mcp_doc_search.domain import Chunk
+from atlas_mcp_doc_search.protocols import BM25Client, EmbeddingsClient, VectorClient
+from atlas_mcp_doc_search.rrf import fuse
 
 
 class SearchService:

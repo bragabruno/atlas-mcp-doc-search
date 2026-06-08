@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from app.domain import RankedResult
-from app.rrf import RRF_K, fuse
+from atlas_mcp_doc_search.domain import RankedResult
+from atlas_mcp_doc_search.rrf import RRF_K, fuse
 
 
 def make_result(chunk_id: str, rank: int) -> RankedResult:

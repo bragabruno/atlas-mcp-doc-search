@@ -10,7 +10,7 @@ from __future__ import annotations
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http.models import QueryResponse, ScoredPoint
 
-from app.domain import RankedResult
+from atlas_mcp_doc_search.domain import RankedResult
 
 _COLLECTION = "doc_chunks"
 

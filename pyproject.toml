@@ -12,8 +12,11 @@ dependencies = [
     "pydantic-settings==2.14.1",
 ]
 
+[project.scripts]
+atlas-mcp-doc-search = "atlas_mcp_doc_search.server:main"
+
 [tool.setuptools.packages.find]
-include = ["app*"]
+include = ["atlas_mcp_doc_search*"]
 
 [project.optional-dependencies]
 dev = [
@@ -41,6 +44,6 @@ pythonpath = ["."]
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
-include = ["app", "tests"]
+include = ["atlas_mcp_doc_search", "tests"]
 venvPath = "."
 venv = ".venv"

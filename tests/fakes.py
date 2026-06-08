@@ -5,7 +5,7 @@ No live Elasticsearch, Qdrant, or gateway required.
 
 from __future__ import annotations
 
-from app.domain import ChunkRecord, RankedResult
+from atlas_mcp_doc_search.domain import ChunkRecord, RankedResult
 
 
 class FakeEmbeddingsClient:

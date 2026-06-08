@@ -10,9 +10,9 @@ from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
-from app.domain import Chunk
-from app.protocols import BM25Client, EmbeddingsClient, VectorClient
-from app.search_service import SearchService
+from atlas_mcp_doc_search.domain import Chunk
+from atlas_mcp_doc_search.protocols import BM25Client, EmbeddingsClient, VectorClient
+from atlas_mcp_doc_search.search_service import SearchService
 
 mcp: FastMCP = FastMCP(
     "atlas-doc-search",
@@ -73,16 +73,17 @@ async def doc_search(query: str, k: int = 8) -> dict[str, list[dict[str, object]
     }
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Console entry point — wire live backends from env and run the MCP server."""
     import os
 
     import httpx
     from elasticsearch import AsyncElasticsearch
     from qdrant_client import AsyncQdrantClient
 
-    from app.backends.es_bm25 import ElasticsearchBM25Client
-    from app.backends.gateway_embeddings import GatewayEmbeddingsClient
-    from app.backends.qdrant_vector import QdrantVectorClient
+    from atlas_mcp_doc_search.backends.es_bm25 import ElasticsearchBM25Client
+    from atlas_mcp_doc_search.backends.gateway_embeddings import GatewayEmbeddingsClient
+    from atlas_mcp_doc_search.backends.qdrant_vector import QdrantVectorClient
 
     es_url = os.environ["ELASTICSEARCH_URL"]
     qdrant_url = os.environ["QDRANT_URL"]
@@ -100,3 +101,7 @@ if __name__ == "__main__":
     )
 
     mcp.run(transport="streamable-http")
+
+
+if __name__ == "__main__":
+    main()
