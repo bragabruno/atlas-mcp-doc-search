@@ -23,3 +23,22 @@ class RankedResult:
     text: str
     source_id: str
     rank: int  # 1-based
+
+
+@dataclass(frozen=True)
+class ChunkRecord:
+    """A chunk ready for ingestion into Qdrant + Elasticsearch.
+
+    Payload schema mirrors atlas-docs/03 § 3.1:
+      source_id  — opaque source document identifier
+      doc_id     — internal Atlas document record ID
+      chunk_idx  — zero-based chunk position within the document
+      text       — raw chunk text
+      id         — stable deterministic ID (uuid5 of source_id + chunk_idx)
+    """
+
+    id: str
+    source_id: str
+    doc_id: str
+    chunk_idx: int
+    text: str
