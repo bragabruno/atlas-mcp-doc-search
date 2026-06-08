@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from app.domain import RankedResult
+from app.domain import ChunkRecord, RankedResult
 
 
 @runtime_checkable
@@ -35,4 +35,31 @@ class VectorClient(Protocol):
 
     async def search(self, vector: list[float], k: int) -> list[RankedResult]:
         """Return up to *k* ranked results nearest to *vector*."""
+        ...
+
+
+@runtime_checkable
+class VectorWriter(Protocol):
+    """Write-side protocol for upserting chunk vectors into Qdrant."""
+
+    async def upsert(self, records: list[ChunkRecord], vectors: list[list[float]]) -> None:
+        """Upsert *records* with their corresponding *vectors* into the store.
+
+        Idempotency: callers may re-upsert the same point_id; the store MUST
+        overwrite the existing point rather than duplicate it.
+        ``records`` and ``vectors`` are parallel sequences of the same length.
+        """
+        ...
+
+
+@runtime_checkable
+class ESWriter(Protocol):
+    """Write-side protocol for indexing chunk documents into Elasticsearch."""
+
+    async def index(self, records: list[ChunkRecord]) -> None:
+        """Index *records* into the ``doc_chunks`` ES index.
+
+        Idempotency: callers use the chunk's stable ``id`` as the ES document
+        ``_id``; repeated calls update the existing document, not duplicate it.
+        """
         ...
