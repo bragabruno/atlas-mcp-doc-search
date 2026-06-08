@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "atlas-mcp-doc-search.fullname" . }}
+  labels:
+    {{- include "atlas-mcp-doc-search.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "atlas-mcp-doc-search.selectorLabels" . | nindent 4 }}

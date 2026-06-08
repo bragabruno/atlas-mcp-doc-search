@@ -1,0 +1,18 @@
+atlas-mcp-doc-search {{ .Chart.AppVersion }} deployed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+Workload controller:
+{{- if .Values.canary.enabled }}
+  Argo Rollouts Rollout (canary) — promotion gated by the slo-check AnalysisTemplate.
+  Watch:   kubectl argo rollouts get rollout {{ include "atlas-mcp-doc-search.fullname" . }} --watch
+{{- else }}
+  Deployment ({{ .Values.replicaCount }} replica(s){{ if .Values.autoscaling.enabled }}, HPA-managed{{ end }}).
+  Status:  kubectl rollout status deployment/{{ include "atlas-mcp-doc-search.fullname" . }}
+{{- end }}
+
+Service:   {{ include "atlas-mcp-doc-search.fullname" . }}:{{ .Values.service.port }} (ClusterIP)
+MCP endpoint: /mcp (FastMCP Streamable HTTP transport)
+Health:    {{ .Values.probes.path }}
+Secrets:   {{ if .Values.secrets.enabled }}Key Vault "{{ .Values.secrets.keyVaultName }}" via CSI at {{ .Values.secrets.mountPath }}{{ else }}disabled{{ end }}
+{{- if .Values.ingress.enabled }}
+Ingress:   {{ range .Values.ingress.hosts }}{{ .host }}{{ end }}
+{{- end }}

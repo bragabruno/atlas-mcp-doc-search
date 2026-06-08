@@ -1,0 +1,60 @@
+# atlas-mcp-doc-search/deploy/values-dev.yaml — dev overrides (atlas-docs/04 §4.2, §4.3).
+# One replica, small SKUs, plain Deployment (no canary/HPA/PDB), no TLS.
+
+replicaCount: 1
+
+image:
+  pullPolicy: Always  # dev tags are mutable; always re-pull
+
+canary:
+  enabled: false
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+env:
+  - name: OTEL_SEMCONV_STABILITY_OPT_IN
+    value: gen_ai_latest_experimental
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: http://$(HOST_IP):4317
+  - name: OTEL_SERVICE_NAME
+    value: atlas-mcp-doc-search
+  - name: HOST_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: ELASTICSEARCH_URL
+    value: "http://elasticsearch.atlas-dev.svc:9200"
+  - name: QDRANT_URL
+    value: "http://qdrant.atlas-dev.svc:6333"
+  - name: ATLAS_GATEWAY_URL
+    value: "http://atlas-gateway.atlas-dev.svc:8000"
+
+secrets:
+  keyVaultName: "kv-atlas-dev"
+  # tenantId / userAssignedIdentityID injected by Terraform output in CI.
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: mcp-doc-search.atlas-dev.internal
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []  # no TLS in dev
+
+serviceMonitor:
+  enabled: false
