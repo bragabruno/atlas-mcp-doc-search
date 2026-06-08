@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from app.domain import RankedResult
-from app.search_service import SearchService
+from atlas_mcp_doc_search.domain import RankedResult
+from atlas_mcp_doc_search.search_service import SearchService
 from tests.fakes import FakeBM25Client, FakeEmbeddingsClient, FakeVectorClient
 
 

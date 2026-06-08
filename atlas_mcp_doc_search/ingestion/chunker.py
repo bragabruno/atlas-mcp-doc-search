@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import uuid
 
-from app.domain import ChunkRecord
+from atlas_mcp_doc_search.domain import ChunkRecord
 
 # Namespace UUID for chunk ID generation (arbitrary, fixed for the project).
 _CHUNK_NS = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")

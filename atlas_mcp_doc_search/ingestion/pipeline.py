@@ -15,9 +15,9 @@ from __future__ import annotations
 
 import asyncio
 
-from app.domain import ChunkRecord
-from app.ingestion.chunker import chunk_text
-from app.protocols import EmbeddingsClient, ESWriter, VectorWriter
+from atlas_mcp_doc_search.domain import ChunkRecord
+from atlas_mcp_doc_search.ingestion.chunker import chunk_text
+from atlas_mcp_doc_search.protocols import EmbeddingsClient, ESWriter, VectorWriter
 
 
 class IngestionPipeline:

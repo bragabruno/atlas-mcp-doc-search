@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import pytest
 
-from app.domain import ChunkRecord
-from app.ingestion.chunker import chunk_text
-from app.ingestion.pipeline import IngestionPipeline
+from atlas_mcp_doc_search.domain import ChunkRecord
+from atlas_mcp_doc_search.ingestion.chunker import chunk_text
+from atlas_mcp_doc_search.ingestion.pipeline import IngestionPipeline
 from tests.fakes import FakeEmbeddingsClient, FakeESWriter, FakeVectorWriter
 
 # ---------------------------------------------------------------------------

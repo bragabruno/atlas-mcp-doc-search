@@ -14,4 +14,4 @@ trap 'on_err "$LINENO" "$?"' ERR
 
 require_cmd python "pip install -e .[dev]"
 log_info "atlas-mcp-doc-search → FastMCP Streamable HTTP (/mcp) on :8000 (Ctrl-C to stop)"
-exec python -m app.server
+exec python -m atlas_mcp_doc_search.server

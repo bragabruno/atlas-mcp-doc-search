@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from app.domain import ChunkRecord, RankedResult
+from atlas_mcp_doc_search.domain import ChunkRecord, RankedResult
 
 
 @runtime_checkable
