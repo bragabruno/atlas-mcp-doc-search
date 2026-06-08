@@ -1,0 +1,21 @@
+{{- /*
+Plain Deployment — rendered only when canary is OFF (dev). When canary.enabled
+is true the Rollout (rollout.yaml) owns the pods (atlas-docs/04 §4.2, §5.4).
+*/ -}}
+{{- if not .Values.canary.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "atlas-mcp-doc-search.fullname" . }}
+  labels:
+    {{- include "atlas-mcp-doc-search.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "atlas-mcp-doc-search.selectorLabels" . | nindent 6 }}
+  template:
+    {{- include "atlas-mcp-doc-search.podSpec" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,23 @@
+apiVersion: v2
+name: atlas-mcp-doc-search
+description: >-
+  Atlas MCP doc-search server — hybrid BM25 (Elasticsearch) + vector (Qdrant)
+  retrieval over the Atlas corpus, fused via RRF, exposed over FastMCP Streamable
+  HTTP. Per atlas-docs/04 §4.2: probes, Key Vault CSI secrets, Workload Identity,
+  Argo Rollouts canary, Ingress for HTTP-exposed MCP endpoint.
+type: application
+# Chart version — bump on chart changes (independent of the app image tag).
+version: 0.1.0
+# Tracks the atlas-mcp-doc-search application version (pyproject [project].version).
+appVersion: "0.1.0"
+kubeVersion: ">=1.27.0-0"
+sources:
+  - https://github.com/atlas-platform/atlas-mcp-doc-search
+maintainers:
+  - name: Atlas Platform Engineering
+keywords:
+  - mcp
+  - doc-search
+  - elasticsearch
+  - qdrant
+  - argo-rollouts

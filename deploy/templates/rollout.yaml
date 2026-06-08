@@ -1,0 +1,26 @@
+{{- /*
+Argo Rollouts canary spec — rendered only when canary is ON (prod).
+(atlas-docs/04 §5.4). Pod template shared with Deployment via podSpec helper.
+*/ -}}
+{{- if .Values.canary.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "atlas-mcp-doc-search.fullname" . }}
+  labels:
+    {{- include "atlas-mcp-doc-search.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "atlas-mcp-doc-search.selectorLabels" . | nindent 6 }}
+  template:
+    {{- include "atlas-mcp-doc-search.podSpec" . | nindent 4 }}
+  strategy:
+    canary:
+      autoPromotionEnabled: {{ .Values.canary.autoPromotionEnabled }}
+      steps:
+        {{- toYaml .Values.canary.steps | nindent 8 }}
+{{- end }}

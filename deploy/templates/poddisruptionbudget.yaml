@@ -1,0 +1,13 @@
+{{- if .Values.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "atlas-mcp-doc-search.fullname" . }}
+  labels:
+    {{- include "atlas-mcp-doc-search.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "atlas-mcp-doc-search.selectorLabels" . | nindent 6 }}
+{{- end }}
