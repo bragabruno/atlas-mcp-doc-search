@@ -84,3 +84,4 @@ Thumbs.db
 # Logs
 *.log
 logs/
+.trunk/
