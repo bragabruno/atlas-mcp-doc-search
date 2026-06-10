@@ -1,0 +1,70 @@
+# atlas-mcp-doc-search/deploy/values-stage.yaml — stage overrides (atlas-docs/04 §4.2, §5.4).
+# Pre-prod: prod-like topology (canary/HPA/PDB on, Key Vault) at reduced scale
+# for validation before prod.
+
+replicaCount: 2
+
+image:
+  pullPolicy: IfNotPresent
+
+# Argo Rollouts canary (replaces the Deployment) — stage validates the rollout
+# path. Steps/analysis come from the chart defaults (10% → SLO check → 50% →
+# SLO check), no auto-promotion.
+canary:
+  enabled: true
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 8
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+env:
+  - name: OTEL_SEMCONV_STABILITY_OPT_IN
+    value: gen_ai_latest_experimental
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: http://$(HOST_IP):4317
+  - name: OTEL_SERVICE_NAME
+    value: atlas-mcp-doc-search
+  - name: HOST_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.hostIP
+  - name: ELASTICSEARCH_URL
+    value: "http://elasticsearch.atlas-stage.svc:9200"
+  - name: QDRANT_URL
+    value: "http://qdrant.atlas-stage.svc:6333"
+  - name: ATLAS_GATEWAY_URL
+    value: "http://atlas-gateway.atlas-stage.svc:8000"
+
+secrets:
+  keyVaultName: "kv-atlas-stage"
+  # tenantId / userAssignedIdentityID injected by Terraform output in CI.
+
+ingress:
+  enabled: true
+  hosts:
+    - host: mcp-doc-search.atlas-stage.internal
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: atlas-mcp-doc-search-tls
+      hosts:
+        - mcp-doc-search.atlas-stage.internal
+
+serviceMonitor:
+  enabled: true
