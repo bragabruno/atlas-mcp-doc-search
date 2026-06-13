@@ -6,9 +6,15 @@ to produce a dense query vector.
 
 from __future__ import annotations
 
+import os
+
 import httpx
 
-_EMBED_MODEL = "embed"
+# Embedding model/alias the gateway routes the query through. Must match the
+# model the corpus was ingested with (scripts/ingest.py reads the same env) so
+# query and document vectors share a space — e.g. `mock` (8-dim) for the
+# offline local stack, a real alias like `embed` in deployed environments.
+_EMBED_MODEL = os.environ.get("ATLAS_EMBED_MODEL", "embed")
 
 
 class GatewayEmbeddingsClient:
