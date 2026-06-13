@@ -65,6 +65,24 @@ async def _write_es(es: AsyncElasticsearch, chunks: list[TextChunk]) -> None:
         await es.bulk(body=ops, refresh=False)
 
 
+async def _ensure_collection(qdrant: AsyncQdrantClient, vector_size: int) -> None:
+    """Create the doc_chunks collection if absent (idempotent).
+
+    Discovered on the first live run: upserting into a non-existent collection
+    is a 404, so the pipeline must create it (cosine distance, dimensionality
+    from the embedding model in use — 8 for the local mock, 1536+ for real ones).
+    """
+    from qdrant_client.models import Distance, VectorParams
+
+    existing = {c.name for c in (await qdrant.get_collections()).collections}
+    if _QDRANT_COLLECTION not in existing:
+        await qdrant.create_collection(
+            collection_name=_QDRANT_COLLECTION,
+            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+        )
+        log.info("created qdrant collection %s (dim=%d)", _QDRANT_COLLECTION, vector_size)
+
+
 async def _write_qdrant(
     qdrant: AsyncQdrantClient,
     chunks: list[TextChunk],
@@ -104,39 +122,49 @@ async def run_ingestion(
     overlap: int = 64,
 ) -> int:
     """Ingest the corpus at *source_path* and return the total chunks written."""
-    async with (
-        httpx.AsyncClient() as http,
-        AsyncElasticsearch([es_url]) as es,
-        AsyncQdrantClient(url=qdrant_url) as qdrant,
-    ):
-        total = 0
-        batch: list[TextChunk] = []
+    # AsyncQdrantClient is NOT an async context manager (qdrant-client 1.18) —
+    # construct it plainly and close in `finally`. Discovered on first live run;
+    # the unit tests use fakes so this never surfaced offline.
+    qdrant = AsyncQdrantClient(url=qdrant_url)
+    try:
+        async with (
+            httpx.AsyncClient() as http,
+            AsyncElasticsearch([es_url]) as es,
+        ):
+            total = 0
+            batch: list[TextChunk] = []
 
-        async def flush() -> None:
-            nonlocal total
-            if not batch:
-                return
-            texts = [c.text for c in batch]
-            vectors = await _embed_batch(http, gateway_url, gateway_api_key, embed_model, texts)
-            await asyncio.gather(
-                _write_es(es, batch),
-                _write_qdrant(qdrant, batch, vectors),
-            )
-            total += len(batch)
-            log.info("ingested %d chunks (total %d)", len(batch), total)
-            batch.clear()
+            async def flush() -> None:
+                nonlocal total
+                if not batch:
+                    return
+                texts = [c.text for c in batch]
+                vectors = await _embed_batch(
+                    http, gateway_url, gateway_api_key, embed_model, texts
+                )
+                if vectors:
+                    await _ensure_collection(qdrant, vector_size=len(vectors[0]))
+                await asyncio.gather(
+                    _write_es(es, batch),
+                    _write_qdrant(qdrant, batch, vectors),
+                )
+                total += len(batch)
+                log.info("ingested %d chunks (total %d)", len(batch), total)
+                batch.clear()
 
-        async for doc in _iter_source(source_path):
-            chunks = chunk_document(
-                text=doc.get("text", ""),
-                source_id=doc.get("source_id", doc.get("id", "unknown")),
-                chunk_size=chunk_size,
-                overlap=overlap,
-            )
-            batch.extend(chunks)
-            if len(batch) >= _EMBED_BATCH:
-                await flush()
+            async for doc in _iter_source(source_path):
+                chunks = chunk_document(
+                    text=doc.get("text", ""),
+                    source_id=doc.get("source_id", doc.get("id", "unknown")),
+                    chunk_size=chunk_size,
+                    overlap=overlap,
+                )
+                batch.extend(chunks)
+                if len(batch) >= _EMBED_BATCH:
+                    await flush()
 
-        await flush()  # remainder
-        log.info("ingestion complete — %d total chunks", total)
-        return total
+            await flush()  # remainder
+            log.info("ingestion complete — %d total chunks", total)
+            return total
+    finally:
+        await qdrant.close()

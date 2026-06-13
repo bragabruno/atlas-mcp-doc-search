@@ -8,12 +8,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.ingest.chunker import TextChunk, chunk_document
-
+from app.ingest.chunker import chunk_document
 
 # ---------------------------------------------------------------------------
 # chunker
@@ -87,16 +87,21 @@ async def test_pipeline_ingests_jsonl_and_returns_chunk_count(tmp_path: Path) ->
 
     fake_vector = [0.1] * 8
 
-    # Mock httpx response for /v1/embeddings
-    mock_embed_resp = MagicMock()
-    mock_embed_resp.raise_for_status = MagicMock()
-    mock_embed_resp.json.return_value = {
-        "data": [{"embedding": fake_vector, "index": 0}]
-    }
+    # Mock httpx response for /v1/embeddings — one embedding PER input text,
+    # mirroring the real gateway contract (the pipeline zips strict=True; the
+    # old fixed single-embedding mock made this test fail on multi-doc input).
+    def _embed_response(url: str, *, json: dict, **_: object) -> MagicMock:  # noqa: A002
+        resp = MagicMock()
+        resp.raise_for_status = MagicMock()
+        inputs = json["input"]
+        resp.json.return_value = {
+            "data": [{"embedding": fake_vector, "index": i} for i in range(len(inputs))]
+        }
+        return resp
 
     # asynccontextmanager-compatible mock for httpx.AsyncClient
     mock_http = AsyncMock()
-    mock_http.post = AsyncMock(return_value=mock_embed_resp)
+    mock_http.post = AsyncMock(side_effect=_embed_response)
     mock_http.__aenter__ = AsyncMock(return_value=mock_http)
     mock_http.__aexit__ = AsyncMock(return_value=False)
 
@@ -107,6 +112,10 @@ async def test_pipeline_ingests_jsonl_and_returns_chunk_count(tmp_path: Path) ->
     mock_qdrant = AsyncMock()
     mock_qdrant.__aenter__ = AsyncMock(return_value=mock_qdrant)
     mock_qdrant.__aexit__ = AsyncMock(return_value=False)
+    # _ensure_collection lists existing collections before the first upsert.
+    mock_qdrant.get_collections = AsyncMock(
+        return_value=SimpleNamespace(collections=[])
+    )
 
     with (
         patch("app.ingest.pipeline.httpx.AsyncClient", return_value=mock_http),
