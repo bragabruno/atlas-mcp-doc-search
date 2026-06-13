@@ -93,21 +93,26 @@ async def _write_qdrant(
         PointStruct(
             id=abs(hash(c.id)) % (2**63),
             vector=vec,
-            payload={"chunk_id": c.id, "text": c.text, "source_id": c.source_id,
-                     "chunk_index": c.chunk_index},
+            payload={
+                "chunk_id": c.id,
+                "text": c.text,
+                "source_id": c.source_id,
+                "chunk_index": c.chunk_index,
+            },
         )
         for c, vec in zip(chunks, vectors, strict=True)
     ]
     await qdrant.upsert(collection_name=_QDRANT_COLLECTION, points=points)
 
 
-async def _iter_source(path: Path) -> AsyncIterator[dict]:
-    """Yield documents from a JSONL file."""
+async def _iter_source(path: Path) -> AsyncIterator[dict[str, str]]:
+    """Yield documents from a JSONL file (each line an {id, source_id, text} object)."""
     with path.open("r", encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
             if line:
-                yield json.loads(line)
+                doc: dict[str, str] = json.loads(line)
+                yield doc
 
 
 async def run_ingestion(
@@ -139,9 +144,7 @@ async def run_ingestion(
                 if not batch:
                     return
                 texts = [c.text for c in batch]
-                vectors = await _embed_batch(
-                    http, gateway_url, gateway_api_key, embed_model, texts
-                )
+                vectors = await _embed_batch(http, gateway_url, gateway_api_key, embed_model, texts)
                 if vectors:
                     await _ensure_collection(qdrant, vector_size=len(vectors[0]))
                 await asyncio.gather(

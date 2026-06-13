@@ -23,6 +23,9 @@ dev = [
     "ruff==0.9.6",
     "pyright==1.1.394",
 ]
+integration = [
+    "testcontainers==4.14.2", # tests/integration ephemeral ES + Qdrant; released 2026-03-18 (>14d)
+]
 
 [build-system]
 requires = ["setuptools>=68"]
@@ -39,6 +42,12 @@ select = ["E", "F", "I", "UP", "B"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 pythonpath = ["."]
+# Integration tests (testcontainers, need Docker) are excluded from the default
+# run so the offline suite stays offline; run them with `pytest -m integration`.
+addopts = "-m 'not integration'"
+markers = [
+    "integration: requires Docker (testcontainers); excluded from the default offline run",
+]
 
 [tool.pyright]
 typeCheckingMode = "strict"

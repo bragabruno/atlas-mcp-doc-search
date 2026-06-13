@@ -19,6 +19,7 @@ from app.ingest.chunker import chunk_document
 # chunker
 # ---------------------------------------------------------------------------
 
+
 def test_chunk_empty_text_returns_no_chunks() -> None:
     assert chunk_document(text="", source_id="doc-1") == []
 
@@ -72,6 +73,7 @@ def test_chunk_invalid_overlap_raises() -> None:
 # pipeline (mocked)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     __import__("importlib.util", fromlist=["find_spec"]).find_spec("elasticsearch") is None,
@@ -90,7 +92,7 @@ async def test_pipeline_ingests_jsonl_and_returns_chunk_count(tmp_path: Path) ->
     # Mock httpx response for /v1/embeddings — one embedding PER input text,
     # mirroring the real gateway contract (the pipeline zips strict=True; the
     # old fixed single-embedding mock made this test fail on multi-doc input).
-    def _embed_response(url: str, *, json: dict, **_: object) -> MagicMock:  # noqa: A002
+    def _embed_response(url: str, *, json: dict[str, list[str]], **_: object) -> MagicMock:  # noqa: A002
         resp = MagicMock()
         resp.raise_for_status = MagicMock()
         inputs = json["input"]
@@ -113,9 +115,7 @@ async def test_pipeline_ingests_jsonl_and_returns_chunk_count(tmp_path: Path) ->
     mock_qdrant.__aenter__ = AsyncMock(return_value=mock_qdrant)
     mock_qdrant.__aexit__ = AsyncMock(return_value=False)
     # _ensure_collection lists existing collections before the first upsert.
-    mock_qdrant.get_collections = AsyncMock(
-        return_value=SimpleNamespace(collections=[])
-    )
+    mock_qdrant.get_collections = AsyncMock(return_value=SimpleNamespace(collections=[]))
 
     with (
         patch("app.ingest.pipeline.httpx.AsyncClient", return_value=mock_http),

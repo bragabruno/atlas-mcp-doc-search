@@ -85,9 +85,7 @@ def main() -> int:
 
     for source_id in source_ids:
         text = " ".join(_paragraph(rng, source_id, p) for p in range(args.paragraphs))
-        sys.stdout.write(
-            json.dumps({"id": source_id, "source_id": source_id, "text": text}) + "\n"
-        )
+        sys.stdout.write(json.dumps({"id": source_id, "source_id": source_id, "text": text}) + "\n")
     print(f"wrote {len(source_ids)} documents", file=sys.stderr)
     return 0
 
