@@ -87,7 +87,7 @@ class BearerAuthMiddleware:
         if self.token is None or scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        headers = dict(scope["headers"])
+        headers = dict((k.lower(), v) for k, v in scope["headers"])
         if not authorized(headers, self.token):
             response = PlainTextResponse(
                 "Unauthorized",

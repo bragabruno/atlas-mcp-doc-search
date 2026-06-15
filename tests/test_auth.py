@@ -5,6 +5,9 @@ Fully offline: exercises the pure ``_authorized`` helper and the
 server, no network.
 """
 
+# Tests import the _AUTH_TOKEN_ENV internal so the env-var name cannot drift.
+# pyright: reportPrivateUsage=false
+
 from __future__ import annotations
 
 from collections.abc import MutableMapping
@@ -12,7 +15,7 @@ from typing import Any
 
 import pytest
 
-from app.auth import BearerAuthMiddleware, authorized
+from app.auth import _AUTH_TOKEN_ENV, BearerAuthMiddleware, authorized
 
 TOKEN = "s3cret-token"
 
@@ -151,7 +154,7 @@ def test_configured_token_treats_blank_as_disabled(
 ) -> None:
     from app.auth import configured_token
 
-    monkeypatch.setenv("ATLAS_MCP_AUTH_TOKEN", token_env)
+    monkeypatch.setenv(_AUTH_TOKEN_ENV, token_env)
     # Empty string disables; a whitespace-only value is a real (if odd) token.
     expected = None if token_env == "" else token_env
     assert configured_token() == expected
@@ -160,5 +163,5 @@ def test_configured_token_treats_blank_as_disabled(
 def test_configured_token_none_when_unset(monkeypatch: pytest.MonkeyPatch) -> None:
     from app.auth import configured_token
 
-    monkeypatch.delenv("ATLAS_MCP_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv(_AUTH_TOKEN_ENV, raising=False)
     assert configured_token() is None
