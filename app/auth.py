@@ -49,14 +49,26 @@ def authorized(headers: dict[bytes, bytes], token: str | None) -> bool:
 
     Returns:
         ``True`` if auth is disabled (``token`` is ``None``) or the request
-        carries the exact ``Authorization: Bearer <token>`` header.
+        carries a ``Bearer`` token whose value matches the configured token.
     """
     if token is None:
         return True
+
     provided = headers.get(b"authorization", b"").decode("latin-1")
-    expected = f"Bearer {token}"
-    # Constant-time compare to avoid leaking the token via timing.
-    return bool(provided) and hmac.compare_digest(provided, expected)
+    if not provided:
+        return False
+
+    # Split on the first run of whitespace into "<scheme> <credentials>"
+    parts = provided.split(None, 1)
+    if len(parts) != 2:
+        return False
+
+    scheme, provided_token = parts
+    if scheme.lower() != "bearer":
+        return False
+
+    # Constant-time compare on the token value to avoid leaking it via timing.
+    return hmac.compare_digest(provided_token, token)
 
 
 class BearerAuthMiddleware:
