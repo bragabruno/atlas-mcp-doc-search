@@ -89,8 +89,18 @@ def _http_scope(*headers: tuple[bytes, bytes]) -> dict[str, Any]:
 async def test_middleware_passthrough_when_token_unset() -> None:
     stub = _StubApp()
     mw = BearerAuthMiddleware(stub, token=None)
+
+    # No headers: middleware should be a no-op when token is unset.
     status = await _run(mw, _http_scope())
     assert status == 200
+    assert stub.called is True
+
+    # Authorization header present: still a no-op when token is unset.
+    status_with_auth = await _run(
+        mw,
+        _http_scope((b"authorization", b"Bearer wrong")),
+    )
+    assert status_with_auth == 200
     assert stub.called is True
 
 
