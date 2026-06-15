@@ -89,6 +89,7 @@ if __name__ == "__main__":
     from elasticsearch import AsyncElasticsearch
     from qdrant_client import AsyncQdrantClient
 
+    from app.auth import serve
     from app.backends.es_bm25 import ElasticsearchBM25Client
     from app.backends.gateway_embeddings import GatewayEmbeddingsClient
     from app.backends.qdrant_vector import QdrantVectorClient
@@ -108,4 +109,5 @@ if __name__ == "__main__":
         vector=QdrantVectorClient(AsyncQdrantClient(url=qdrant_url)),
     )
 
-    mcp.run(transport="streamable-http")
+    # BRA-883 — optional bearer auth (default-off via ATLAS_MCP_AUTH_TOKEN).
+    serve(mcp)
