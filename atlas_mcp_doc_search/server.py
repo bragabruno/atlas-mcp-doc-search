@@ -12,9 +12,9 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
-from app.domain import Chunk
-from app.protocols import BM25Client, EmbeddingsClient, VectorClient
-from app.search_service import SearchService
+from atlas_mcp_doc_search.domain import Chunk
+from atlas_mcp_doc_search.protocols import BM25Client, EmbeddingsClient, VectorClient
+from atlas_mcp_doc_search.search_service import SearchService
 
 # Bind host/port from the env. FastMCP's own FASTMCP_HOST env var is not honored
 # in this SDK version (its default kwarg overrides it), so read it explicitly and
@@ -82,17 +82,18 @@ async def doc_search(query: str, k: int = 8) -> dict[str, list[dict[str, object]
     }
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Console entry point — wire live backends from env and run the MCP server."""
     import os
 
     import httpx
     from elasticsearch import AsyncElasticsearch
     from qdrant_client import AsyncQdrantClient
 
-    from app.auth import serve
-    from app.backends.es_bm25 import ElasticsearchBM25Client
-    from app.backends.gateway_embeddings import GatewayEmbeddingsClient
-    from app.backends.qdrant_vector import QdrantVectorClient
+    from atlas_mcp_doc_search.auth import serve
+    from atlas_mcp_doc_search.backends.es_bm25 import ElasticsearchBM25Client
+    from atlas_mcp_doc_search.backends.gateway_embeddings import GatewayEmbeddingsClient
+    from atlas_mcp_doc_search.backends.qdrant_vector import QdrantVectorClient
 
     es_url = os.environ["ELASTICSEARCH_URL"]
     qdrant_url = os.environ["QDRANT_URL"]
@@ -110,4 +111,9 @@ if __name__ == "__main__":
     )
 
     # BRA-883 — optional bearer auth (default-off via ATLAS_MCP_AUTH_TOKEN).
+    # serve() defers to mcp.run(transport="streamable-http") when no token is set.
     serve(mcp)
+
+
+if __name__ == "__main__":
+    main()

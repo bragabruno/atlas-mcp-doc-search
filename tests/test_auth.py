@@ -15,7 +15,7 @@ from typing import Any
 
 import pytest
 
-from app.auth import _AUTH_TOKEN_ENV, BearerAuthMiddleware, authorized
+from atlas_mcp_doc_search.auth import _AUTH_TOKEN_ENV, BearerAuthMiddleware, authorized
 
 TOKEN = "s3cret-token"
 
@@ -152,7 +152,7 @@ async def test_middleware_ignores_non_http_scopes() -> None:
 def test_configured_token_treats_blank_as_disabled(
     token_env: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from app.auth import configured_token
+    from atlas_mcp_doc_search.auth import configured_token
 
     monkeypatch.setenv(_AUTH_TOKEN_ENV, token_env)
     # Empty string disables; a whitespace-only value is a real (if odd) token.
@@ -161,7 +161,7 @@ def test_configured_token_treats_blank_as_disabled(
 
 
 def test_configured_token_none_when_unset(monkeypatch: pytest.MonkeyPatch) -> None:
-    from app.auth import configured_token
+    from atlas_mcp_doc_search.auth import configured_token
 
     monkeypatch.delenv(_AUTH_TOKEN_ENV, raising=False)
     assert configured_token() is None

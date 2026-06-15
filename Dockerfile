@@ -2,8 +2,6 @@
 # atlas-mcp-doc-search runtime image — multi-stage, non-root, pinned base.
 # Base pinned exactly (atlas-docs/02 §2), matching the CI image. Runtime deps are
 # the exact-pinned [project.dependencies] from pyproject.toml (no dev deps).
-# Mirrors atlas-mcp-citations/Dockerfile; the package here is `app` (not a named
-# distribution package), so the entrypoint is `python -m app.server`.
 
 FROM python:3.12.13-slim-bookworm AS build
 WORKDIR /app
@@ -27,10 +25,10 @@ ENV PATH="/venv/bin:${PATH}" \
     FASTMCP_HOST=0.0.0.0
 USER app
 EXPOSE 8000
-# MCP doc-search server over FastMCP Streamable HTTP (port 8000). FASTMCP_HOST
-# is forced to 0.0.0.0 so the published port is reachable (FastMCP defaults to
-# 127.0.0.1, which is unreachable across the container boundary). The entrypoint
-# reads ELASTICSEARCH_URL / QDRANT_URL / ATLAS_GATEWAY_URL / ATLAS_GATEWAY_API_KEY
-# from the env; the image ships no secrets. No console_script in pyproject, so
-# run the module directly.
-CMD ["python", "-m", "app.server"]
+# FastMCP MCP server over Streamable HTTP (/mcp on :8000). FASTMCP_HOST is forced
+# to 0.0.0.0 so the published port is reachable (FastMCP defaults to 127.0.0.1,
+# which is unreachable across the container boundary). Backend endpoints + the
+# gateway API key (ELASTICSEARCH_URL, QDRANT_URL, ATLAS_GATEWAY_URL,
+# ATLAS_GATEWAY_API_KEY) are injected per-env at deploy time via the Key Vault
+# CSI mount (atlas-docs/04); the image ships no secrets.
+CMD ["python", "-m", "atlas_mcp_doc_search.server"]

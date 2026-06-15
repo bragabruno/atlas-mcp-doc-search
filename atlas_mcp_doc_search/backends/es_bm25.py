@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from elasticsearch import AsyncElasticsearch
 
-from app.domain import RankedResult
+from atlas_mcp_doc_search.domain import RankedResult
 
 _INDEX = "doc_chunks"
 

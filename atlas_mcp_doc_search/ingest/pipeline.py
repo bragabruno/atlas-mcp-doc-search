@@ -26,7 +26,7 @@ from elasticsearch import AsyncElasticsearch
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import PointStruct
 
-from app.ingest.chunker import TextChunk, chunk_document
+from atlas_mcp_doc_search.ingest.chunker import TextChunk, chunk_document
 
 log = logging.getLogger(__name__)
 

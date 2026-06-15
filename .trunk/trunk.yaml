@@ -1,0 +1,26 @@
+version: 0.1
+cli:
+  version: 1.25.0
+plugins:
+  sources:
+    - id: trunk
+      ref: v1.10.2
+      uri: https://github.com/trunk-io/plugins
+runtimes:
+  enabled:
+    - python@3.14.4
+lint:
+  definitions:
+    - name: ruff
+      commands:
+        - name: format
+          enabled: true
+  enabled:
+    - ruff@0.11.13
+actions:
+  disabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+  enabled:
+    - trunk-upgrade-available

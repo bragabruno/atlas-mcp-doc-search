@@ -31,7 +31,7 @@ pytest.importorskip("testcontainers.qdrant")
 from testcontainers.elasticsearch import ElasticSearchContainer  # noqa: E402
 from testcontainers.qdrant import QdrantContainer  # noqa: E402
 
-from app.ingest import pipeline  # noqa: E402
+from atlas_mcp_doc_search.ingest import pipeline  # noqa: E402
 
 # Match the local stack's pins (atlas-infra/local/compose.dev.yaml).
 _ES_IMAGE = "elasticsearch:9.4.0"

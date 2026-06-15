@@ -10,7 +10,7 @@ Reference: Cormack, Clarke & Buettcher (2009).
 
 from __future__ import annotations
 
-from app.domain import Chunk, RankedResult
+from atlas_mcp_doc_search.domain import Chunk, RankedResult
 
 RRF_K: int = 60  # Standard RRF constant (Cormack et al. 2009)
 

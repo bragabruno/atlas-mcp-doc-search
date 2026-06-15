@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.ingest.chunker import chunk_document
+from atlas_mcp_doc_search.ingest.chunker import chunk_document
 
 # ---------------------------------------------------------------------------
 # chunker
@@ -118,11 +118,11 @@ async def test_pipeline_ingests_jsonl_and_returns_chunk_count(tmp_path: Path) ->
     mock_qdrant.get_collections = AsyncMock(return_value=SimpleNamespace(collections=[]))
 
     with (
-        patch("app.ingest.pipeline.httpx.AsyncClient", return_value=mock_http),
-        patch("app.ingest.pipeline.AsyncElasticsearch", return_value=mock_es),
-        patch("app.ingest.pipeline.AsyncQdrantClient", return_value=mock_qdrant),
+        patch("atlas_mcp_doc_search.ingest.pipeline.httpx.AsyncClient", return_value=mock_http),
+        patch("atlas_mcp_doc_search.ingest.pipeline.AsyncElasticsearch", return_value=mock_es),
+        patch("atlas_mcp_doc_search.ingest.pipeline.AsyncQdrantClient", return_value=mock_qdrant),
     ):
-        from app.ingest.pipeline import run_ingestion
+        from atlas_mcp_doc_search.ingest.pipeline import run_ingestion
 
         total = await run_ingestion(
             source_path=source,

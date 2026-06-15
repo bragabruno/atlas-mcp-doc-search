@@ -30,7 +30,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 
 
 async def _main(args: argparse.Namespace) -> None:
-    from app.ingest.pipeline import run_ingestion
+    from atlas_mcp_doc_search.ingest.pipeline import run_ingestion
 
     total = await run_ingestion(
         source_path=Path(args.source),
