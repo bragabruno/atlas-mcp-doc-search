@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Atlas MCP doc-search server — hybrid BM25 + vector retrieval via RRF"
 requires-python = ">=3.12"
 dependencies = [
-    "mcp==1.27.1",
+    "mcp==1.28.1",
     "elasticsearch==9.4.0",
     "aiohttp==3.13.5",              # required by AsyncElasticsearch transport; released 2026-03-31 (>14d)
     "qdrant-client==1.18.0",
